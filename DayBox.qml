@@ -3,14 +3,23 @@ import QtQuick 1.1
 Rectangle {
 
     property date day
+    onDayChanged : buttonText.text = Qt.formatDate(day, "d" )
+
     property int boxtype: 4
 
-    onDayChanged : buttonText.text = Qt.formatDate(day, "d" )
+    property bool selected: false
+    onSelectedChanged: 
+    {
+        if(selected == true)
+            color = "blue"
+        else
+            color = "darkgray"
+    }
 
     id: button1
     width: 18; height: 18
     color: "darkgray"
-    radius: 2
+    radius: 9
     smooth: true
 
     MouseArea {

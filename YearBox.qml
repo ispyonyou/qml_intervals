@@ -11,7 +11,7 @@ Rectangle {
     id: button1
     width: 18; height: 227
     color: "darkgray"
-    radius: 2
+    radius: 9
     smooth: true
 
 

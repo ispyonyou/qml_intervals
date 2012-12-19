@@ -15,8 +15,15 @@ Rectangle
 
         Column{
             id: intervalCtrl
-//            anchors.centerIn: parent
             spacing: 10
+
+            // 0 - no select
+            // 1 - select
+            // 2 - unselect
+            property int selectMode: 0 
+
+            property Item startSelectionItem: null
+            property Item endSelectionItem: null
         
             function onBoxEntered(box, dt)
             {
@@ -49,58 +56,100 @@ Rectangle
 
                 preventStealing: true
 
-                onPositionChanged:
+                function getItemUnderMouth(mouse, printBoxes)
                 {
                     var item = intervalCtrl.childAt(mouse.x, mouse.y)
-
-                    if(item && item.boxtype == 11) {// YearRow
-
+                    
+                    // YearRow      
+                    if(item && item.boxtype == 11)
+                    {
                         var itemMouse = item.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
-//                        console.log( "mouse - " + mouse.x + "; " + mouse.y )
-//                        console.log( "itemMouse - " + itemMouse.x + "; " + itemMouse.y )
-
-                        var item1 = item.childAt(itemMouse.x, itemMouse.y)
+                        item = item.childAt(itemMouse.x, itemMouse.y)
 
                         // YearBox
-                        if(item1 && item1.boxtype == 1){
-                            console.log( "YearBox - " + Qt.formatDate(item1.year, "yyyy" ) )
-                            return;
+                        if(item && item.boxtype == 1)
+                        {
+                            if(printBoxes)
+                                console.log( "YearBox - " + Qt.formatDate(item.year, "yyyy" ) )
+                            return item;
                         }
 
-                        // column of month rows
-                        if( item1 && item1.boxtype == 12 )
+                        // Column of month rows
+                        if(item && item.boxtype == 12)
                         {
-                            var itemMouse = item1.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
-
-                            var item2 = item1.childAt(itemMouse.x, itemMouse.y)
+                            var itemMouse = item.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
+                            item = item.childAt(itemMouse.x, itemMouse.y)
 
                             // MonthRow
-                            if(item2 && item2.boxtype == 13)
+                            if(item && item.boxtype == 13)
                             {
-                                var itemMouse = item2.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
-
-                                var item3 = item2.childAt(itemMouse.x, itemMouse.y)
+                                var itemMouse = item.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
+                                item = item.childAt(itemMouse.x, itemMouse.y)
 
                                 // MonthBox
-                                if(item3 && item3.boxtype == 2)
+                                if(item && item.boxtype == 2)
                                 {
-                                    console.log( "MonthBox - " + Qt.formatDate(item3.month, "yyyy/MM" ) )
-                                    return;
+                                    if(printBoxes)
+                                        console.log( "MonthBox - " + Qt.formatDate(item.month, "yyyy/MM" ) )
+                                    return item;
                                 }
 
                                 // DayBox
-                                if(item3 && item3.boxtype == 4)
+                                if(item && item.boxtype == 4)
                                 {
-                                    console.log( "DayBox - " + Qt.formatDate(item3.day, "yyyy/MM/d" ) )
-                                    return;
+                                    if(printBoxes)
+                                        console.log( "DayBox - " + Qt.formatDate(item.day, "yyyy/MM/d" ) )
+                                    return item;
                                 }
-
-                                console.log( item3 )
-                                return;
                             }
-
-                            return;
                         }
+                    }
+
+                    return null;
+                }
+
+                onPressed:
+                {
+                    console.log("onPressed")
+                    var item = getItemUnderMouth(mouse, true)
+
+                    if(item && !item.selected)
+                        intervalCtrl.selectMode = 1
+                    else if(item && item.selected)
+                        intervalCtrl.selectMode = 2
+                    else 
+                        intervalCtrl.selectMode = 0
+
+                    if(item && intervalCtrl.selectMode)
+                        intervalCtrl.startSelectionItem = item
+
+                }
+
+                onReleased:
+                {
+                    console.log("onPressed")
+                    intervalCtrl.selectMode = 0
+                }
+
+                onPositionChanged:
+                {
+                    var item = getItemUnderMouth(mouse, true);
+
+                    var prevEndSelectionItem = intervalCtrl.endSelectionItem;
+                    if(item && intervalCtrl.selectMode != 0)
+                        intervalCtrl.endSelectionItem = item;
+
+                    if(intervalCtrl.endSelectionItem != prevEndSelectionItem)
+                    {
+                        console.log("The selection algoritm implementation will be here")
+                    }
+
+                    if(item)
+                    {
+                        if(intervalCtrl.selectMode == 1)
+                            item.selected = true;
+                        else if(intervalCtrl.selectMode == 2)
+                            item.selected = false;
                     }
                 }
             }
