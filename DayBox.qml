@@ -42,6 +42,7 @@ Rectangle {
     color: "darkgray"
     radius: 9
     smooth: true
+    opacity: 0.7
 
     MouseArea {
         id: buttonMouseArea
@@ -49,9 +50,6 @@ Rectangle {
         anchors.fill: parent  
 
         preventStealing: true
-        
-//        hoverEnabled : true
-//        onEntered: intervalCtrl.onBoxEntered(4, parent.day)
 
         onPositionChanged:
         {

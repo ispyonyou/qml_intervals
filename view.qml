@@ -17,13 +17,20 @@ Rectangle
             id: intervalCtrl
             spacing: 10
 
-            property int _boxType_DayBox: 4;
+            property int _boxType_YearBox   :  1
+            property int _boxType_MonthBox  :  2
+            property int _boxType_DayBox    :  4
+            property int _boxType_YearRow   : 11
+            property int _boxType_MonthesCol: 12
+            property int _boxType_MonthRow  : 13
 
             property int _selMode_NoSelect: 0
             property int _selMode_Select  : 1
             property int _selMode_Unselect: 2
 
             property int selMode: _selMode_NoSelect
+
+            property Item boxUnderMouth: null
 
             property Item startSelBox: null
             property Item endSelBox: null
@@ -49,45 +56,33 @@ Rectangle
                 objectName: "buttonMouseArea1"
                 anchors.fill: parent
 
+                hoverEnabled : true
                 preventStealing: true
 
                 function getItemUnderMouth(mouse, printBoxes)
                 {
                     var item = intervalCtrl.childAt(mouse.x, mouse.y)
-                    
-                    // YearRow      
-                    if(item && item.boxtype == 11)
+
+                    if(item && item.boxtype == intervalCtrl._boxType_YearRow)
                     {
                         var itemMouse = item.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
                         item = item.childAt(itemMouse.x, itemMouse.y)
 
-                        // YearBox
-                        if(item && item.boxtype == 1)
-                        {
-                            if(printBoxes)
-                                console.log( "YearBox - " + Qt.formatDate(item.year, "yyyy" ) )
+                        if(item && item.boxtype == intervalCtrl._boxType_YearBox)
                             return item;
-                        }
 
-                        // Column of month rows
-                        if(item && item.boxtype == 12)
+                        if(item && item.boxtype == intervalCtrl._boxType_MonthesCol)
                         {
                             var itemMouse = item.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
                             item = item.childAt(itemMouse.x, itemMouse.y)
 
-                            // MonthRow
-                            if(item && item.boxtype == 13)
+                            if(item && item.boxtype == intervalCtrl._boxType_MonthRow)
                             {
                                 var itemMouse = item.mapFromItem(buttonMouseArea1, mouse.x, mouse.y)
                                 item = item.childAt(itemMouse.x, itemMouse.y)
 
-                                // MonthBox
-                                if(item && item.boxtype == 2)
-                                {
-                                    if(printBoxes)
-                                        console.log( "MonthBox - " + Qt.formatDate(item.month, "yyyy/MM" ) )
+                                if(item && item.boxtype == intervalCtrl._boxType_MonthBox)
                                     return item;
-                                }
 
                                 if(item && item.boxtype == intervalCtrl._boxType_DayBox )
                                     return item;
@@ -98,36 +93,40 @@ Rectangle
                     return null;
                 }
 
-                function getDay(box)
-                {
-                    if(box && box.boxtype == 4)
-                        return box.day;
-
-                    console.log("*** assert - function getDay(box)")
-                }
-
                 function getFirstDate(box)
                 {
-                    if(box.boxtype == 4)
-                        return box.day;
-                    else if(box.boxtype == 2)
-                        return new Date(box.month.getYear(), box.month.getMonth(), 1)
-                    else if(box.boxtype == 1)
-                        return new Date(box.year.getYear(), 0, 1)
+                    switch(box.boxtype)
+                    {
+                        case intervalCtrl._boxType_DayBox:
+                            return box.day;
+                        case intervalCtrl._boxType_MonthBox:
+                            return new Date(box.month.getFullYear(), box.month.getMonth(), 1)
+                        case intervalCtrl._boxType_YearBox:
+                            return new Date(box.year.getFullYear(), 0, 1)
+                    }
+
+                    console.log("Error. getFirstDate(). Unsupported item type"); null = 1;
+                    return null;
                 }
 
                 function getLastDate(box)
                 {
-                    if(box.boxtype == 4)
-                        return box.day;
-                    else if(box.boxtype == 2)
+                    switch(box.boxtype)
                     {
-                        var year = box.month.getYear();
-                        var month = box.month.getMonth();
-                        return new Date(year, month, 32 - new Date(year, month, 32).getDate());
+                        case intervalCtrl._boxType_DayBox:
+                            return box.day;
+                        case intervalCtrl._boxType_MonthBox:
+                        {
+                            var year = box.month.getFullYear();
+                            var month = box.month.getMonth();
+                            return new Date(year, month, 32 - new Date(year, month, 32).getDate());
+                        }
+                        case intervalCtrl._boxType_YearBox:
+                            return new Date(box.year.getFullYear(), 11, 31);
                     }
-                    else if(box.boxtype == 1)
-                        return new Date(box.year.getYear(), 11, 31);
+
+                    console.log("Error. getLastDate(). Unsupported item type"); null = 1;
+                    return null;
                 }
 
                 function getIntervalBetweenBoxes(box1, box2)
@@ -138,14 +137,19 @@ Rectangle
                     var box2_firstDay = getFirstDate(box2);
                     var box2_lastDay = getLastDate(box2);
 
-                    // day - day
-                    if( box1.boxtype == 4 && box2.boxtype == 4 )
-                    {
-                        if( box1_firstDay < box2_firstDay )
-                            return [box1_firstDay, box2_firstDay];
-                        else
-                            return [box2_firstDay, box1_firstDay]
-                    }
+                    if( box1.boxtype == intervalCtrl._boxType_YearBox && box1_firstDay.getFullYear() == box2_firstDay.getFullYear())
+                        return [box1_firstDay, box1_lastDay];
+
+                    if( box2.boxtype == intervalCtrl._boxType_YearBox && box1_firstDay.getFullYear() == box2_firstDay.getFullYear())
+                        return [box2_firstDay, box2_lastDay];
+
+                    if( box1.boxtype == intervalCtrl._boxType_MonthBox && box1_firstDay.getFullYear() == box2_firstDay.getFullYear() && box1_firstDay.getMonth() == box2_firstDay.getMonth())
+                        return [box1_firstDay, box1_lastDay];
+
+                    if( box2.boxtype == intervalCtrl._boxType_MonthBox && box1_firstDay.getFullYear() == box2_firstDay.getFullYear() && box1_firstDay.getMonth() == box2_firstDay.getMonth())
+                        return [box2_firstDay, box2_lastDay];
+
+                    return (box1_firstDay < box2_firstDay) ? [box1_firstDay, box2_lastDay] : [box2_firstDay, box1_lastDay];
                 }
 
                 function selection(from, to, is_tmp_selection, is_select)
@@ -179,7 +183,6 @@ Rectangle
                                     else
                                         dayBox.selected = is_select;
                                 }
-
                             }
                         }
                     }
@@ -233,11 +236,12 @@ Rectangle
                     intervalCtrl.endSelBox = null;
 
                     intervalCtrl.startSelBox = getItemUnderMouth(mouse, false)
+
                     if(!intervalCtrl.startSelBox)
                         return;
 
                     intervalCtrl.selMode = intervalCtrl.startSelBox.selected ? intervalCtrl._selMode_Unselect 
-                                                                                : intervalCtrl._selMode_Select;
+                                                                             : intervalCtrl._selMode_Select;
                     intervalCtrl.endSelBox = intervalCtrl.startSelBox;
 
                     doSelection();
@@ -245,7 +249,9 @@ Rectangle
 
                 onReleased:
                 {
-                    endSelection();
+                    if(intervalCtrl.selMode != intervalCtrl._selMode_NoSelect)
+                        endSelection();
+
                     intervalCtrl.selMode = intervalCtrl._selMode_NoSelect;
                     intervalCtrl.startSelBox = null;
                     intervalCtrl.endSelBox = null;
@@ -257,12 +263,27 @@ Rectangle
                 {
                     var box = getItemUnderMouth(mouse, false);
 
+                    if(intervalCtrl.boxUnderMouth && intervalCtrl.boxUnderMouth != box)
+                        intervalCtrl.boxUnderMouth.opacity = 0.7;
+
+                    intervalCtrl.boxUnderMouth = box;
+                    if(intervalCtrl.boxUnderMouth)
+                        intervalCtrl.boxUnderMouth.opacity = 1;                    
+
                     var prevEndSelBox = intervalCtrl.endSelBox;
                     if(box && intervalCtrl.selMode != intervalCtrl._selMode_NoSelect)
                         intervalCtrl.endSelBox = box;
 
-                    if(intervalCtrl.endSelBox != prevEndSelBox)
+                    if(intervalCtrl.startSelBox && intervalCtrl.endSelBox != prevEndSelBox)
                         doSelection();
+                }
+
+                onExited:
+                {
+                    if(intervalCtrl.boxUnderMouth)
+                        intervalCtrl.boxUnderMouth.opacity = 0.7;
+
+                    intervalCtrl.boxUnderMouth = null;
                 }
             }
     }

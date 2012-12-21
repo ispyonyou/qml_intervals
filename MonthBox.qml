@@ -21,6 +21,7 @@ Rectangle {
     color: "darkgray"
     radius: 9
     smooth: true
+    opacity: 0.7
 
     MouseArea {
         id: buttonMouseArea
