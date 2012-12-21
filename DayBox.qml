@@ -8,12 +8,33 @@ Rectangle {
     property int boxtype: 4
 
     property bool selected: false
-    onSelectedChanged: 
+    onSelectedChanged:
     {
-        if(selected == true)
-            color = "blue"
+        setColor();
+    }
+
+    property bool tempSelected: false
+    onTempSelectedChanged:
+    {
+        setColor();
+    }
+
+    function setColor()
+    {
+        if(tempSelected)
+        {
+            if(intervalCtrl.selMode == intervalCtrl._selMode_Select)
+                color = "blue"
+            else
+                color = "darkgray"
+        }
         else
-            color = "darkgray"
+        {
+            if(selected == true)
+                color = "blue"
+            else
+                color = "darkgray"
+        }
     }
 
     id: button1

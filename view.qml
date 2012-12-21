@@ -17,27 +17,22 @@ Rectangle
             id: intervalCtrl
             spacing: 10
 
-            // 0 - no select
-            // 1 - select
-            // 2 - unselect
-            property int selectMode: 0 
+            property int _boxType_DayBox: 4;
 
-            property Item startSelectionItem: null
-            property Item endSelectionItem: null
-        
-            function onBoxEntered(box, dt)
-            {
-                if( box == 1 ) // YearBox
-                    console.log( "YearBox - " + Qt.formatDate(dt, "yyyy" ) )
-                else if( box == 2 ) // MonthBox
-                    console.log( "MonthBox - " + Qt.formatDate(dt, "yyyy/MM" ) )
-                else if( box == 4 ) // DayBox
-                    console.log( "DayBox - " + Qt.formatDate(dt, "yyyy/MM/d" ) )
-            }
-        
+            property int _selMode_NoSelect: 0
+            property int _selMode_Select  : 1
+            property int _selMode_Unselect: 2
+
+            property int selMode: _selMode_NoSelect
+
+            property Item startSelBox: null
+            property Item endSelBox: null
+
+            property variant startSelDate;
+            property variant endSelDate;
+
             YearRow{
                 year: "2011-01-01"
-                id: asdf
             }
         
             YearRow{
@@ -94,13 +89,8 @@ Rectangle
                                     return item;
                                 }
 
-                                // DayBox
-                                if(item && item.boxtype == 4)
-                                {
-                                    if(printBoxes)
-                                        console.log( "DayBox - " + Qt.formatDate(item.day, "yyyy/MM/d" ) )
+                                if(item && item.boxtype == intervalCtrl._boxType_DayBox )
                                     return item;
-                                }
                             }
                         }
                     }
@@ -108,52 +98,173 @@ Rectangle
                     return null;
                 }
 
+                function getDay(box)
+                {
+                    if(box && box.boxtype == 4)
+                        return box.day;
+
+                    console.log("*** assert - function getDay(box)")
+                }
+
+                function getFirstDate(box)
+                {
+                    if(box.boxtype == 4)
+                        return box.day;
+                    else if(box.boxtype == 2)
+                        return new Date(box.month.getYear(), box.month.getMonth(), 1)
+                    else if(box.boxtype == 1)
+                        return new Date(box.year.getYear(), 0, 1)
+                }
+
+                function getLastDate(box)
+                {
+                    if(box.boxtype == 4)
+                        return box.day;
+                    else if(box.boxtype == 2)
+                    {
+                        var year = box.month.getYear();
+                        var month = box.month.getMonth();
+                        return new Date(year, month, 32 - new Date(year, month, 32).getDate());
+                    }
+                    else if(box.boxtype == 1)
+                        return new Date(box.year.getYear(), 11, 31);
+                }
+
+                function getIntervalBetweenBoxes(box1, box2)
+                {
+                    var box1_firstDay = getFirstDate(box1);
+                    var box1_lastDay = getLastDate(box1);
+
+                    var box2_firstDay = getFirstDate(box2);
+                    var box2_lastDay = getLastDate(box2);
+
+                    // day - day
+                    if( box1.boxtype == 4 && box2.boxtype == 4 )
+                    {
+                        if( box1_firstDay < box2_firstDay )
+                            return [box1_firstDay, box2_firstDay];
+                        else
+                            return [box2_firstDay, box1_firstDay]
+                    }
+                }
+
+                function selection(from, to, is_tmp_selection, is_select)
+                {
+                    if(intervalCtrl.children.length == 0)
+                        return;
+
+                    var firstYear = intervalCtrl.children[0].year.getFullYear();
+                    var lastYear = firstYear + intervalCtrl.children.length - 1;
+
+                    for(var y = firstYear; y <= lastYear; y++)
+                    {
+                        if(!(from.getFullYear() <= y && y <= to.getFullYear()))
+                            continue;
+
+                        var yearRow = intervalCtrl.children[y - firstYear];
+                        var monthesColumn = yearRow.children[1];
+
+                        for(var m = 0; m < 12; m++ )
+                        {
+                            var monthRow = monthesColumn.children[m];
+                            var daysRepeater = monthRow.children[monthRow.children.length-1];
+                            for(var d = 1; d <= daysRepeater.model; d++)
+                            {
+                                var dt = new Date(y, m, d);
+                                if(from <= dt && dt <= to)
+                                {
+                                    var dayBox = monthRow.children[d];
+                                    if(is_tmp_selection)
+                                        dayBox.tempSelected = is_select;
+                                    else
+                                        dayBox.selected = is_select;
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                function doSelection()
+                {
+                    if(!intervalCtrl.startSelBox || !intervalCtrl.endSelBox)
+                        return null;
+
+                    var prevStartSelDate = intervalCtrl.startSelDate;
+                    var prevEndSelDate = intervalCtrl.endSelDate;
+
+                    var interval = getIntervalBetweenBoxes(intervalCtrl.startSelBox, intervalCtrl.endSelBox);
+
+                    intervalCtrl.startSelDate = interval[0];
+                    intervalCtrl.endSelDate = interval[1];
+
+                    if( !prevStartSelDate )
+                        prevStartSelDate = intervalCtrl.startSelDate;
+
+                    if( !prevEndSelDate )
+                        prevEndSelDate = intervalCtrl.endSelDate;
+
+                    if(prevStartSelDate < intervalCtrl.startSelDate)
+                        selection(prevStartSelDate, intervalCtrl.startSelDate, true, false);
+
+                    if(intervalCtrl.endSelDate < prevEndSelDate)
+                        selection(intervalCtrl.endSelDate, prevEndSelDate, true, false);
+
+                    selection(intervalCtrl.startSelDate, intervalCtrl.endSelDate, true, true);
+                }
+
+                function endSelection()
+                {
+                    selection(intervalCtrl.startSelDate, intervalCtrl.endSelDate, true, false)
+
+                    var is_selection = true;
+                    if( intervalCtrl.selMode == intervalCtrl._selMode_Select)
+                        is_selection = true;
+                    else
+                        is_selection = false;
+
+                    selection(intervalCtrl.startSelDate, intervalCtrl.endSelDate, false, is_selection)
+                }
+
                 onPressed:
                 {
-                    console.log("onPressed")
-                    var item = getItemUnderMouth(mouse, true)
+                    intervalCtrl.selMode = intervalCtrl._selMode_NoSelect;
+                    intervalCtrl.startSelBox = null;
+                    intervalCtrl.endSelBox = null;
 
-                    if(item && !item.selected)
-                        intervalCtrl.selectMode = 1
-                    else if(item && item.selected)
-                        intervalCtrl.selectMode = 2
-                    else 
-                        intervalCtrl.selectMode = 0
+                    intervalCtrl.startSelBox = getItemUnderMouth(mouse, false)
+                    if(!intervalCtrl.startSelBox)
+                        return;
 
-                    if(item && intervalCtrl.selectMode)
-                        intervalCtrl.startSelectionItem = item
+                    intervalCtrl.selMode = intervalCtrl.startSelBox.selected ? intervalCtrl._selMode_Unselect 
+                                                                                : intervalCtrl._selMode_Select;
+                    intervalCtrl.endSelBox = intervalCtrl.startSelBox;
 
+                    doSelection();
                 }
 
                 onReleased:
                 {
-                    console.log("onPressed")
-                    intervalCtrl.selectMode = 0
+                    endSelection();
+                    intervalCtrl.selMode = intervalCtrl._selMode_NoSelect;
+                    intervalCtrl.startSelBox = null;
+                    intervalCtrl.endSelBox = null;
+                    intervalCtrl.startSelDate = null;
+                    intervalCtrl.endSelDate = null;
                 }
 
                 onPositionChanged:
                 {
-                    var item = getItemUnderMouth(mouse, true);
+                    var box = getItemUnderMouth(mouse, false);
 
-                    var prevEndSelectionItem = intervalCtrl.endSelectionItem;
-                    if(item && intervalCtrl.selectMode != 0)
-                        intervalCtrl.endSelectionItem = item;
+                    var prevEndSelBox = intervalCtrl.endSelBox;
+                    if(box && intervalCtrl.selMode != intervalCtrl._selMode_NoSelect)
+                        intervalCtrl.endSelBox = box;
 
-                    if(intervalCtrl.endSelectionItem != prevEndSelectionItem)
-                    {
-                        console.log("The selection algoritm implementation will be here")
-                    }
-
-                    if(item)
-                    {
-                        if(intervalCtrl.selectMode == 1)
-                            item.selected = true;
-                        else if(intervalCtrl.selectMode == 2)
-                            item.selected = false;
-                    }
+                    if(intervalCtrl.endSelBox != prevEndSelBox)
+                        doSelection();
                 }
             }
-
     }
 }
     

@@ -23,6 +23,8 @@ Row{
         month : parent.month
     }
     Repeater {
+        id: daysRepeater
+
         model: 3
         DayBox{
         }
