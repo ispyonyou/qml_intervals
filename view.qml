@@ -168,22 +168,92 @@ Rectangle
                         var yearRow = intervalCtrl.children[y - firstYear];
                         var monthesColumn = yearRow.children[1];
 
+                        var checkYearSelected = false;
+
                         for(var m = 0; m < 12; m++ )
                         {
                             var monthRow = monthesColumn.children[m];
                             var daysRepeater = monthRow.children[monthRow.children.length-1];
+
+                            var chekMonthSelected = false;
+
                             for(var d = 1; d <= daysRepeater.model; d++)
                             {
                                 var dt = new Date(y, m, d);
                                 if(from <= dt && dt <= to)
                                 {
+                                    chekMonthSelected = true;
+
                                     var dayBox = monthRow.children[d];
                                     if(is_tmp_selection)
-                                        dayBox.tempSelected = is_select;
+                                    {
+                                        if(intervalCtrl.selMode == intervalCtrl._selMode_Select)
+                                            dayBox.tempSelected = is_select;
+                                        else
+                                            dayBox.tempUnselected = is_select;
+                                    }
                                     else
                                         dayBox.selected = is_select;
                                 }
                             }
+
+                            if(chekMonthSelected)
+                            {
+                                checkYearSelected = true;
+
+                                var monthBox = monthRow.children[0];
+                                var selectedCnt = 0;
+
+                                for(var d = 1; d <= daysRepeater.model; d++)
+                                {
+                                    var dayBox = monthRow.children[d];
+                                    var selected = false;
+
+                                    if(dayBox.tempSelected)
+                                        selected = true;
+                                    else if(dayBox.tempUnselected)
+                                        selected = false;
+                                    else
+                                        selected = dayBox.selected;
+
+                                    if(selected)
+                                        selectedCnt += 1;
+                                }
+
+                                if(!selectedCnt)
+                                    monthBox.selected = monthBox._select_Unselected;
+                                else if(selectedCnt < daysRepeater.model)
+                                    monthBox.selected = monthBox._select_PartSelected;
+                                else
+                                    monthBox.selected = monthBox._select_FullSelected;
+                            }
+                        }
+
+                        if(checkYearSelected)
+                        {
+                            var unSelectedCnt = 0;
+                            var fullSelectedCnt = 0;
+
+                            for(var m = 0; m < 12; m++ )
+                            {
+                                var monthRow = monthesColumn.children[m];
+                                var monthBox = monthRow.children[0];
+
+                                if(monthBox.selected == monthBox._select_Unselected)
+                                    unSelectedCnt++;
+                                else if(monthBox.selected == monthBox._select_FullSelected)
+                                    fullSelectedCnt++;
+                            }
+
+                            var yearRow = intervalCtrl.children[y - firstYear];
+                            var yearBox = yearRow.children[0];
+
+                            if(unSelectedCnt == 12)
+                                yearBox.selected = yearBox._select_Unselected;
+                            else if(fullSelectedCnt == 12)
+                                yearBox.selected = yearBox._select_FullSelected;
+                            else 
+                                yearBox.selected = yearBox._select_PartSelected;
                         }
                     }
                 }
@@ -240,8 +310,27 @@ Rectangle
                     if(!intervalCtrl.startSelBox)
                         return;
 
-                    intervalCtrl.selMode = intervalCtrl.startSelBox.selected ? intervalCtrl._selMode_Unselect 
-                                                                             : intervalCtrl._selMode_Select;
+                    if(intervalCtrl.startSelBox.boxtype == intervalCtrl._boxType_DayBox)
+                        intervalCtrl.selMode = intervalCtrl.startSelBox.selected ? intervalCtrl._selMode_Unselect 
+                                                                                 : intervalCtrl._selMode_Select;
+                    else if(intervalCtrl.startSelBox.boxtype == intervalCtrl._boxType_MonthBox){
+                        var monthBox = intervalCtrl.startSelBox;
+
+                        intervalCtrl.selMode = 
+                            monthBox.selected == monthBox._select_Unselected ? intervalCtrl._selMode_Select 
+                                                                             : intervalCtrl._selMode_Unselect;
+                    }
+                    else if(intervalCtrl.startSelBox.boxtype == intervalCtrl._boxType_YearBox){
+                        var yearBox = intervalCtrl.startSelBox;
+
+                        intervalCtrl.selMode = 
+                            yearBox.selected == yearBox._select_Unselected ? intervalCtrl._selMode_Select 
+                                                                           : intervalCtrl._selMode_Unselect;
+                    }
+                    else {
+                        console.log("Error. onPressed(). Unsupported item type"); null = 1;
+                    }
+
                     intervalCtrl.endSelBox = intervalCtrl.startSelBox;
 
                     doSelection();

@@ -7,14 +7,21 @@ Rectangle {
 
     property int boxtype: 2
 
-    property bool selected: false
+    property int _select_Unselected  : 0;
+    property int _select_FullSelected: 1;
+    property int _select_PartSelected: 2;
+
+    property int selected: _select_Unselected
     onSelectedChanged: 
     {
-        if(selected == true)
+        if(selected == _select_FullSelected)
             color = "blue"
+        else if(selected == _select_PartSelected)
+            color = "lightblue"
         else
             color = "darkgray"
     }
+
 
     id: button1
     width: 120; height: 18

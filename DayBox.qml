@@ -19,14 +19,24 @@ Rectangle {
         setColor();
     }
 
+    property bool tempUnselected: false
+    onTempUnselectedChanged:
+    {
+        setColor();
+    }
+
     function setColor()
     {
         if(tempSelected)
         {
-            if(intervalCtrl.selMode == intervalCtrl._selMode_Select)
+//            if(intervalCtrl.selMode == intervalCtrl._selMode_Select)
                 color = "blue"
-            else
-                color = "darkgray"
+//            else
+//                color = "darkgray"
+        }
+        else if(tempUnselected)
+        {
+            color = "darkgray"
         }
         else
         {
