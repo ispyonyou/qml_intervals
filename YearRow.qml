@@ -63,6 +63,9 @@ Row{
             id: month11
             month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-12-01"
         }
+
+        Component.onCompleted:{console.log("on completed year - " + year)}
+        Component.onDestruction:{console.log("on destruction year - " + year)}
     }
 
 }

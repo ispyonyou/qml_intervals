@@ -49,6 +49,18 @@ Rectangle
             YearRow{
                 year: "2013-01-01"
             }
+
+            YearRow{
+                year: "2014-01-01"
+            }
+
+            YearRow{
+                year: "2015-01-01"
+            }
+
+            YearRow{
+                year: "2016-01-01"
+            }
         
         }
         MouseArea {
