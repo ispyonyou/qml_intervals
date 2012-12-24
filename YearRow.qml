@@ -1,92 +1,40 @@
-import Qt 4.7
+import QtQuick 1.1
 
 Row{
-    id: yearRow
+    id : yearRow
 
     property date year
-    property int boxtype: 11
+    property int boxtype : intervalCtrl.boxType_YearRow
 
-    spacing: 1
+    spacing : 1
 
     Behavior on y { NumberAnimation {} }
  
-    YearBox{
-        year : parent.year
+    YearBox {
+        id : yearBox
+        year : yearRow.year
     }
 
-    Column{
-        spacing: 1
-        property int boxtype: 12
-
-        MonthRow{
-            id: month0
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-01-01"
-        }
-        MonthRow{
-            id: month1
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-02-01"
-        }
-        MonthRow{
-            id: month2
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-03-01"
-        }
-        MonthRow{
-            id: month3
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-04-01"
-        }
-        MonthRow{
-            id: month4
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-05-01"
-        }
-        MonthRow{
-            id: month5
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-06-01"
-        }
-        MonthRow{
-            id: month6
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-07-01"
-        }
-        MonthRow{
-            id: month7
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-08-01"
-        }
-        MonthRow{
-            id: month8
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-09-01"
-        }
-        MonthRow{
-            id: month9
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-10-01"
-        }
-        MonthRow{
-            id: month10
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-11-01"
-        }
-        MonthRow{
-            id: month11
-            month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-12-01"
-        }
-
-        Component.onCompleted:{
-            var yearsArr = intervalCtrl.yearRows;
-            if(!yearsArr.length)
-                yearsArr.unshift(yearRow);
-
-            else{
-                var y = yearsArr[0];
-                if(yearRow.year.getFullYear() < y.year.getFullYear())
-                    yearsArr.unshift(yearRow);
-                else
-                    yearsArr.push(yearRow);
-            }
-
-            intervalCtrl.yearRows = yearsArr
-
-            console.log("bbbb")
-
-        }
-
-        Component.onDestruction:{console.log("on destruction year - " + year)}
+    function getMonthDate(m) {
+        return new Date(year.getFullYear(), m - 1, 1);
     }
 
+    Column {
+        spacing : 1
+        property int boxtype : intervalCtrl.boxType_MonthesCol
+        property date year : yearRow.year;
+
+        MonthRow { month : getMonthDate(1) }
+        MonthRow { month : getMonthDate(2) }
+        MonthRow { month : getMonthDate(3) }
+        MonthRow { month : getMonthDate(4) }
+        MonthRow { month : getMonthDate(5) }
+        MonthRow { month : getMonthDate(6) }
+        MonthRow { month : getMonthDate(7) }
+        MonthRow { month : getMonthDate(8) }
+        MonthRow { month : getMonthDate(9) }
+        MonthRow { month : getMonthDate(10) }
+        MonthRow { month : getMonthDate(11) }
+        MonthRow { month : getMonthDate(12) }
+    }
 }

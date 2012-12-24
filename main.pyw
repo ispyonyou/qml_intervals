@@ -7,11 +7,8 @@ class MainWnd(QtGui.QMainWindow):
 
         self.layout = QtGui.QHBoxLayout()
 
-        self.layout.addWidget(QtGui.QPushButton('asd'))
-        self.layout.addWidget(QtGui.QPushButton('asd'))
-
         qmlView = QtDeclarative.QDeclarativeView()
-        qmlView.setSource(QtCore.QUrl('view.qml'))
+        qmlView.setSource(QtCore.QUrl('main.qml'))
         qmlView.setResizeMode(QtDeclarative.QDeclarativeView.SizeRootObjectToView)
 
         self.layout.addWidget(qmlView)
