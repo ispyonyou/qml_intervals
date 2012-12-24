@@ -3,19 +3,33 @@ import QtQuick 1.1
 
 Rectangle
 {
+    id: ctrl
+    
     width: 900; height: 500
 
+    property variant yearRows: [];
+
+
+    ScrollBar{
+        width: parent.width - flick.width
+        height: parent.height
+    }
+
     Flickable{
-        width: 900; height: 500
+        id: flick
+
+        width: 800; height: 500
         contentWidth: intervalCtrl.width; contentHeight: intervalCtrl.height
 
-        anchors.fill: parent
+//        anchors.fill: parent
 
         flickableDirection: Flickable.VerticalFlick
 
-        Column{
+        YearsColumn{
             id: intervalCtrl
-            spacing: 10
+//            spacing: 10
+
+            property variant yearRows: [];
 
             property int _boxType_YearBox   :  1
             property int _boxType_MonthBox  :  2
@@ -60,8 +74,7 @@ Rectangle
 
             YearRow{
                 year: "2016-01-01"
-            }
-        
+            }        
         }
         MouseArea {
                 id: buttonMouseArea1

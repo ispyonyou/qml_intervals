@@ -1,11 +1,14 @@
 import Qt 4.7
 
 Row{
+    id: yearRow
 
     property date year
     property int boxtype: 11
 
     spacing: 1
+
+    Behavior on y { NumberAnimation {} }
  
     YearBox{
         year : parent.year
@@ -64,7 +67,25 @@ Row{
             month : Qt.formatDate(parent.parent.year, "yyyy" ) + "-12-01"
         }
 
-        Component.onCompleted:{console.log("on completed year - " + year)}
+        Component.onCompleted:{
+            var yearsArr = intervalCtrl.yearRows;
+            if(!yearsArr.length)
+                yearsArr.unshift(yearRow);
+
+            else{
+                var y = yearsArr[0];
+                if(yearRow.year.getFullYear() < y.year.getFullYear())
+                    yearsArr.unshift(yearRow);
+                else
+                    yearsArr.push(yearRow);
+            }
+
+            intervalCtrl.yearRows = yearsArr
+
+            console.log("bbbb")
+
+        }
+
         Component.onDestruction:{console.log("on destruction year - " + year)}
     }
 
