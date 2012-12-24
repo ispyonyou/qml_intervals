@@ -21,13 +21,14 @@ Rectangle
         width: 800; height: 500
         contentWidth: intervalCtrl.width; contentHeight: intervalCtrl.height
 
-//        anchors.fill: parent
-
         flickableDirection: Flickable.VerticalFlick
 
         YearsColumn{
             id: intervalCtrl
-//            spacing: 10
+
+            width: flick.width; height: flick.height
+            anchors.left: parent.left
+
 
             property variant yearRows: [];
 
@@ -79,7 +80,11 @@ Rectangle
         MouseArea {
                 id: buttonMouseArea1
                 objectName: "buttonMouseArea1"
-                anchors.fill: parent
+
+                width: flick.contentWidth; height: flick.contentHeight
+                anchors.left: parent.left
+
+                //anchors.fill: parent
 
                 hoverEnabled : true
                 preventStealing: true
@@ -182,7 +187,9 @@ Rectangle
                     if(intervalCtrl.children.length == 0)
                         return;
 
-                    var firstYear = intervalCtrl.children[0].year.getFullYear();
+                    //var firstYear = intervalCtrl.children[0].year.getFullYear();
+                    var firstYear = intervalCtrl.getFirstYear();
+
                     var lastYear = firstYear + intervalCtrl.children.length - 1;
 
                     for(var y = firstYear; y <= lastYear; y++)
@@ -190,7 +197,9 @@ Rectangle
                         if(!(from.getFullYear() <= y && y <= to.getFullYear()))
                             continue;
 
-                        var yearRow = intervalCtrl.children[y - firstYear];
+                        //var yearRow = intervalCtrl.children[y - firstYear];
+                        var yearRow = intervalCtrl.getYearRow(y);
+
                         var monthesColumn = yearRow.children[1];
 
                         var checkYearSelected = false;
@@ -270,7 +279,7 @@ Rectangle
                                     fullSelectedCnt++;
                             }
 
-                            var yearRow = intervalCtrl.children[y - firstYear];
+                            //var yearRow = intervalCtrl.children[y - firstYear];
                             var yearBox = yearRow.children[0];
 
                             if(unSelectedCnt == 12)

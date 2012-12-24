@@ -51,4 +51,22 @@ Item
 
         yearsCol.add();
     }
+
+    function getFirstYear()
+    {
+        var minYear = 10000;
+        for(var i = 0; i < yearsCol.children.length; i++ ) {
+            if( yearsCol.children[i].year.getFullYear() < minYear )
+                minYear = yearsCol.children[i].year.getFullYear();
+        }
+
+        return minYear;
+    }
+
+    function getYearRow(year)
+    {
+        for(var i = 0; i < yearsCol.children.length; i++ )
+            if( yearsCol.children[i].year.getFullYear() == year )
+                return yearsCol.children[i];
+    }
 }
