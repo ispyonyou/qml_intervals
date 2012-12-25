@@ -20,8 +20,8 @@ Item
     property Item startSelBox: null
     property Item endSelBox: null
 
-    property variant startSelDate;
-    property variant endSelDate;
+    property variant startSelDate
+    property variant endSelDate
 
     property bool isCompleted: false
     property Item animTarget: null

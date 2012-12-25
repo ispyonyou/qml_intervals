@@ -2,13 +2,12 @@ import QtQuick 1.1
 
 Rectangle {
     id : dayBox
+    property int boxtype: intervalCtrl.boxType_DayBox
 
     property date day
     onDayChanged : { 
         buttonText.text = Qt.formatDate(day, "d" )
     }
-
-    property int boxtype: intervalCtrl.boxType_DayBox
 
     property bool selected: false
     onSelectedChanged: {

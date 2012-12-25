@@ -14,10 +14,13 @@ Rectangle
     Flickable{
         id: flick
 
-        width: 732; height: 500
-        contentWidth: intervalCtrl.width; contentHeight: intervalCtrl.height
+        width : 732; height : ctrl.height
+        contentWidth : intervalCtrl.width; contentHeight : intervalCtrl.height
 
-        flickableDirection: Flickable.VerticalFlick
+        flickableDirection : Flickable.VerticalFlick
+
+        Behavior on contentY { NumberAnimation { duration: 200 } }
+
 
         YearsColumn {
             id: intervalCtrl
@@ -32,34 +35,33 @@ Rectangle
         }
 
         MouseArea {
-                id: mouseArea
+            id : mouseArea
 
-                width: flick.contentWidth; height: flick.contentHeight
-                anchors.left: parent.left
+            width : flick.contentWidth; height : flick.contentHeight
+            anchors.left : parent.left
 
-                hoverEnabled : true
-                preventStealing: true
+            hoverEnabled : true
+            preventStealing : true
 
-                onPressed : {
-                    var box = intervalCtrl.getBoxUnderMouse(mouse, mouseArea)
-                    intervalCtrl.startSelection(box)
-                }
-
-                onReleased : {
-                    intervalCtrl.endSelection();
-                }
-
-                onPositionChanged : {
-                    var box = intervalCtrl.getBoxUnderMouse(mouse, mouseArea);
-                    intervalCtrl.performHighlight(box);
-
-                    intervalCtrl.performSelection(box);
-                }
-
-                onExited : {
-                    intervalCtrl.performHighlight(null);
-                }
+            onPressed : {
+                var box = intervalCtrl.getBoxUnderMouse(mouse, mouseArea)
+                intervalCtrl.startSelection(box)
             }
+
+            onReleased : {
+                intervalCtrl.endSelection();
+            }
+
+            onPositionChanged : {
+                var box = intervalCtrl.getBoxUnderMouse(mouse, mouseArea);
+                intervalCtrl.performHighlight(box);
+                intervalCtrl.performSelection(box);
+            }
+
+            onExited : {
+                intervalCtrl.performHighlight(null);
+            }
+        }
     }
 }
     

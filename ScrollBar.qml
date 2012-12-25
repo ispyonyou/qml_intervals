@@ -29,6 +29,7 @@ Rectangle {
                 var component = Qt.createComponent("YearRow.qml");
                 var sprite = component.createObject(intervalCtrl, {"x": 0, "y": 0, "year": newYear});
 
+                flick.contentY = 0
                 intervalCtrl.updatePositions();
             }
         }
