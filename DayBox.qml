@@ -15,22 +15,16 @@ Item {
 
     property bool selected: false
     onSelectedChanged: {
-//        animFromTmpSel.duration = 1000
-//        animFromTmpUnSel.duration = 1000
         setState()
     }
 
     property bool tempSelected: false
     onTempSelectedChanged: {
-//        animFromTmpSel.duration = 0
-//        animFromTmpUnSel.duration = 0
         setState()
     }
 
     property bool tempUnselected: false
     onTempUnselectedChanged: {
-//        animFromTmpSel.duration = 0
-//        animFromTmpUnSel.duration = 0
         setState()
     }
 
@@ -48,10 +42,8 @@ Item {
 
         width: 4; height: 4
 
-        x: 0; y: 0
-
-//        anchors.top: parent.top
-//        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.left: parent.left
 
         color: "black"
 
@@ -90,29 +82,21 @@ Item {
         State {
             name: "TMPSELECTED"
             PropertyChanges { target: dayBoxForeground; color: "blue" }
-            PropertyChanges { target: dayBoxBackground; visible: true; x: 0 }
         },
         State {
             name: "TMPUNSELECTED"
             PropertyChanges { target: dayBoxForeground; color: "darkgray" }
-            PropertyChanges { target: dayBoxBackground; visible: true; x: 0 }
         }
     ]
 
     transitions: [
         Transition {
             from: "UNSELECTED"; to: "SELECTED"
-            NumberAnimation { id: animFromTmpSel; target: dayBoxBackground; properties: "x"; from: 0; to: 14; duration: 400 }
-            SequentialAnimation {
-                NumberAnimation { target: dayBoxBackground; property: "visible"; from: 1; to: 0; duration: 400 }
-            }
+            ColorAnimation { target: dayBoxForeground; properties: "color"; from: "darkgray"; to: "blue"; duration: 200 }
         },
         Transition {
             from: "SELECTED"; to: "UNSELECTED"
-            NumberAnimation { target: dayBoxBackground; properties: "x"; from: 14; to: 0; duration: 400 }
-            SequentialAnimation {
-                NumberAnimation { target: dayBoxBackground; property: "visible"; from: 1; to: 0; duration: 400 }
-            }
+            ColorAnimation { target: dayBoxForeground; properties: "color"; from: "blue"; to: "darkgray"; duration: 200 }
         }
     ]
 }
