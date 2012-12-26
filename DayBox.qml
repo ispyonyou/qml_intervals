@@ -1,8 +1,12 @@
 import QtQuick 1.1
 
-Rectangle {
+Item {
     id : dayBox
     property int boxtype: intervalCtrl.boxType_DayBox
+
+    width: 18; height: 18
+    opacity: 0.7
+    state: "UNSELECTED"
 
     property date day
     onDayChanged : { 
@@ -11,44 +15,71 @@ Rectangle {
 
     property bool selected: false
     onSelectedChanged: {
-        setColor();
+        state = selected ? "SELECTED" : "UNSELECTED";
     }
 
     property bool tempSelected: false
     onTempSelectedChanged: {
-        setColor();
+        setState()
     }
 
     property bool tempUnselected: false
     onTempUnselectedChanged: {
-        setColor();
+        state = "TMPUNSELECTED"
+        console.log(state)
     }
 
-    function setColor() {
-        if(tempSelected) {
-            color = "blue"
-        }
-        else if(tempUnselected) {
-            color = "darkgray"
-        }
-        else {
-            if(selected == true)
-                color = "blue"
-            else
-                color = "darkgray"
-        }
+    function setState() {
+        if(tempSelected)
+            state = "TMPSELECTED"
+        else if(tempUnselected)
+            state = "TMPUNSELECTED"
+        else
+            state = selected ? "SELECTED" : "UNSELECTED";
     }
 
-    width: 18; height: 18
-    color: "darkgray"
-    radius: 9
-    smooth: true
-    opacity: 0.7
+    Rectangle {
+        id: dayBoxForeground
 
-    Text {
-        id: buttonText
-        anchors.horizontalCenter: dayBox.horizontalCenter
-        anchors.verticalCenter: dayBox.verticalCenter
-        font.pointSize: 8;
+        anchors.fill: parent
+        color: "darkgray"
+        radius: 9
+        smooth: true
+
+
+        Text {
+            id: buttonText
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            font.pointSize: 8;
+        }
+
     }
+
+    states: [
+        State {
+            name: "UNSELECTED"
+            PropertyChanges { target: dayBoxForeground; color: "darkgray" }
+        },
+        State {
+            name: "SELECTED"
+            PropertyChanges { target: dayBoxForeground; color: "blue" }
+        },
+        State {
+            name: "TMPSELECTED"
+            PropertyChanges { target: dayBoxForeground; color: "blue" }
+        },
+        State {
+            name: "TMPUNSELECTED"
+            PropertyChanges { target: dayBoxForeground; color: "darkgray" }
+        }
+
+    ]
+
+ //   transitions: [
+ //       Transition {
+ //           from: "*"; to: "SELECTED"
+ //           NumberAnimation { properties: "color"; duration: 200 }
+ //       }
+ //   ]
 }
