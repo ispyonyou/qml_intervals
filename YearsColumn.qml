@@ -142,7 +142,7 @@ Item
 
     function endSelection() {
         if(selMode != selMode_NoSelect) {
-            selection(startSelDate, endSelDate, true, false)
+//            selection(startSelDate, endSelDate, true, false)
             selection(startSelDate, endSelDate, false, (selMode == selMode_Select))
         }
 
@@ -271,8 +271,11 @@ Item
                             else
                                 dayBox.tempUnselected = is_select;
                         }
-                        else
+                        else{
+                            dayBox.tempSelected = false;
+                            dayBox.tempUnselected = false;
                             dayBox.selected = is_select;
+                        }
                     }
                 }
 

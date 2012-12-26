@@ -19,7 +19,7 @@ Rectangle
 
         flickableDirection : Flickable.VerticalFlick
 
-//        Behavior on contentY { NumberAnimation { duration: 200 } }
+        Behavior on contentY { NumberAnimation { duration: 200 } }
 
 
         YearsColumn {
