@@ -5,6 +5,7 @@ Rectangle
     id: ctrl
     
     width: 754; height: 500
+    color: "#AACEF0"
 
     ScrollBar{
         width: parent.width - flick.width

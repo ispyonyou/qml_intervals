@@ -109,12 +109,22 @@ Item
     }
 
     function performHighlight(box) {
+        if(selMode != selMode_NoSelect) {
+            if(boxUnderMouth) {
+                boxUnderMouth.isUnderMouth = false;
+                boxUnderMouth = null;
+            }
+
+            return;
+        }
+
         if(boxUnderMouth && boxUnderMouth != box)
-            boxUnderMouth.opacity = 0.7;
+            boxUnderMouth.isUnderMouth = false;
 
         boxUnderMouth = box;
+
         if(boxUnderMouth)
-            boxUnderMouth.opacity = 1;                    
+            boxUnderMouth.isUnderMouth = true;
     }
 
     function startSelection(box){

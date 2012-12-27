@@ -5,30 +5,53 @@ Rectangle {
     property int boxtype: intervalCtrl.boxType_DayBox
 
     width: 18; height: 18
-    opacity: 0.7
-    radius: 9
+    radius: 3
     smooth: true
 
     state: "UNSELECTED"
 
+    property color clrDayBox_Unsel      : "#E7EEFB"
+    property color clrDayBox_Sel        : "#A5AFC0"
+    property color clrDayBox_Text       : "black"
+    property color clrDayBox_UnderMouse : "yellow"
+
     property date day
     onDayChanged : { 
         buttonText.text = Qt.formatDate(day, "d" )
+        var weekDay = day.getDay()
+        if(weekDay == 6 || weekDay == 0)
+            isHolyday = true;
+    }
+
+    property bool isHolyday
+    onIsHolydayChanged: {
+        clrDayBox_Unsel = "#E7EEFB";
+        clrDayBox_Sel = "#A5AFC0";
+        clrDayBox_UnderMouse = "yellow"
+
+        if(!isHolyday){
+            clrDayBox_Text = "black";
+        }
+        else {
+            clrDayBox_Text = "red";
+        }
     }
 
     property bool selected: false
-    onSelectedChanged: {
-        setState()
-    }
+    onSelectedChanged: { setState() }
 
     property bool tempSelected: false
-    onTempSelectedChanged: {
-        setState()
-    }
+    onTempSelectedChanged: { setState() }
 
     property bool tempUnselected: false
-    onTempUnselectedChanged: {
-        setState()
+    onTempUnselectedChanged: { setState() }
+
+    property bool isUnderMouth: false
+    onIsUnderMouthChanged: {
+        if(isUnderMouth) 
+            state = "UNDERMOUTH"
+        else
+            setState();
     }
 
     function setState() {
@@ -40,50 +63,47 @@ Rectangle {
             state = selected ? "SELECTED" : "UNSELECTED";
     }
 
-//    Rectangle {
-//        id: dayBoxForeground
-//
-//        anchors.fill: parent
-//        color: "darkgray"
-//        radius: 9
-//        smooth: true
-//    }
-
     Text {
         id: buttonText
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         font.pointSize: 8;
+
+        color: parent.clrDayBox_Text
     }
 
 
     states: [
         State {
             name: "UNSELECTED"
-            PropertyChanges { target: dayBox; color: "darkgray" }
+            PropertyChanges { target: dayBox; color: clrDayBox_Unsel }
         },
         State {
             name: "SELECTED"
-            PropertyChanges { target: dayBox; color: "blue" }
-        },
-        State {
-            name: "TMPSELECTED"
-            PropertyChanges { target: dayBox; color: "blue" }
+            PropertyChanges { target: dayBox; color: clrDayBox_Sel }
         },
         State {
             name: "TMPUNSELECTED"
-            PropertyChanges { target: dayBox; color: "darkgray" }
+            PropertyChanges { target: dayBox; color: clrDayBox_Unsel }
+        },
+        State {
+            name: "TMPSELECTED"
+            PropertyChanges { target: dayBox; color: clrDayBox_Sel }
+        },
+        State {
+            name: "UNDERMOUTH"
+            PropertyChanges { target: dayBox; color: clrDayBox_UnderMouse }
         }
     ]
 
     transitions: [
         Transition {
             from: "*"; to: "TMPSELECTED"
-            ColorAnimation { target: dayBox; properties: "color"; from: "darkgray"; to: "blue"; duration: 100 }
+            ColorAnimation { target: dayBox; properties: "color"; from: clrDayBox_Unsel; to: clrDayBox_Sel; duration: 100 }
         },
         Transition {
             from: "*"; to: "TMPUNSELECTED"
-            ColorAnimation { target: dayBox; properties: "color"; from: "blue"; to: "darkgray"; duration: 100 }
+            ColorAnimation { target: dayBox; properties: "color"; from: clrDayBox_Sel; to: clrDayBox_Unsel; duration: 100 }
         }
     ]
 }
